@@ -1,0 +1,50 @@
+{
+  "name": "factory-engine",
+  "displayName": "Factory Engine",
+  "description": "IDE support for Factory Engine",
+  "version": "0.0.1",
+  "engines": {
+    "vscode": "^1.94.0"
+  },
+  "icon": "logo.png",
+  "categories": [
+    "Snippets"
+  ],
+  "activationEvents": [
+    "onStartupFinished"
+  ],
+  "main": "./extension.js",
+  "contributes": {
+    "snippets": [
+      {
+        "language": "python",
+        "path": "./snippets/python_server.json"
+      }
+    ],
+    "commands": [
+      {
+        "command": "factory-engine.helloWorld",
+        "title": "Hello World"
+      }
+    ]
+  },
+  "scripts": {
+    "lint": "eslint .",
+    "pretest": "npm run lint",
+    "test": "vscode-test"
+  },
+  "devDependencies": {
+    "@types/mocha": "^10.0.9",
+    "@types/node": "20.x",
+    "@types/vscode": "^1.94.0",
+    "@vscode/test-cli": "^0.0.10",
+    "@vscode/test-electron": "^2.4.1",
+    "eslint": "^9.13.0"
+  },
+  "extensionDependencies": [
+    "ms-python.python"
+  ],
+  "dependencies": {
+    "js-yaml": "^4.1.0"
+  }
+}

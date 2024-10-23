@@ -1,0 +1,20 @@
+{
+    "Service": {
+      "prefix": ["service"],
+      "body": [
+        "from fetoolkit import Service, Integer, ANYONE, Success",
+        "",
+        "class AddNumbers(Service):",
+        "",
+        "   FE_ALLOW = ANYONE()",
+        "",
+        "   class Input:",
+        "       a = Integer()",
+        "       b = Integer()",
+        "",
+        "   def run(requester, data):",
+        "       return Success({\"result\": data.a + data.b})"
+      ],
+      "description": "A server-side web service."
+    }
+}
