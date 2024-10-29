@@ -1,0 +1,135 @@
+{
+    "Dashboard": {
+      "prefix": ["dashboard"],
+      "body": [
+        "import { Dashboard } from 'fetoolkit';",
+        "export const ${1:ExampleDashboard} = () => Dashboard({",
+        "\tname: \"${2:Example Dashboard}\",",
+        "\tdescription: \"${3:A cool dashboard}\",",
+        "\tcomponent: ${4:SomeComponent},",
+        "\tpermission: \"${5:<full permission name>}\",",
+        "});"
+      ],
+      "description": "A server-hosted top level dashboard UI."
+    },
+    "Display": {
+      "prefix": ["display"],
+      "body": [
+        "import { Display } from 'fetoolkit';",
+        "export const ${1:ExampleDisplay} = () => Display({",
+        "\tcomponent: ${2:SomeComponent},",
+        "});"
+      ],
+      "description": "A device-hosted display screen."
+    },
+    "Device Widget": {
+      "prefix": ["device widget", "widget"],
+      "body": [
+        "import { DeviceWidget } from 'fetoolkit';",
+        "export const ${1:ExampleWidget} = () => DeviceWidget({",
+        "\tcomponent: ${2:SomeComponent},",
+        "});"
+      ],
+      "description": "A server-hosted UI widget associated with a type of device."
+    },
+    "Device Tab": {
+      "prefix": ["device tab", "tab"],
+      "body": [
+        "import { DeviceTab } from 'fetoolkit';",
+        "export const ${1:ExampleTab} = () => DeviceTab({",
+        "\tcomponent: ${2:SomeComponent},",
+        "});"
+      ],
+      "description": "A server-hosted UI tab associated with a type of device."
+    },
+    "Widget": {
+      "prefix": ["widget"],
+      "body": [
+        "import { Widget } from 'fetoolkit';",
+        "export const ${1:ExampleWidget} = () => Widget({",
+        "\tcomponent: ${2:SomeComponent},",
+        "\tpermission: \"${3:<full permission name>}\",",
+        "});"
+      ],
+      "description": "A server-hosted landing page widget UI."
+    },
+    "useService (json)": {
+      "prefix": ["useService"],
+      "body": [
+        "//import { useService } from 'fetoolkit';",
+        "useService({app: '${1:<app slug>}', service: '${2:<service name>}', data: {a: 1, b: 2}})",
+        "\t.then(res => res.json())",
+        "\t.then(data => console.log(data))",
+        "\t.catch(err => console.error(err));"
+      ],
+      "description": "Use a Factory Engine service from your UI."
+    },
+    "useType": {
+      "prefix": ["useType"],
+      "body": [
+        "//import { useType } from 'fetoolkit';",
+        "const ${1:TypeName} = useType({app: '${2:<app slug>}', service: '${1:<type name>}'});"
+      ],
+      "description": "Use a Factory Engine type from your UI."
+    },
+    "useSetting": {
+      "prefix": ["useSetting"],
+      "body": [
+        "//import { useSetting } from 'fetoolkit';",
+        "const {${1:setting}, ${1:setting}_error} = useSetting('${2:SettingGroup.SettingName}');"
+      ],
+      "description": "Retrieve the value of an app setting from your UI."
+    },
+    "useStream": {
+      "prefix": ["useStream"],
+      "body": [
+        "//import { useStream } from 'fetoolkit';",
+        "const {subscribe, sendMessage} = useStream('${1:<app slug>}');",
+        "subscribe({stream: '${2:StreamName}', onMessage: (msg) => {",
+        "\tsendMessage({stream: 'AnotherStream', topic: 'SomeTopic', data: {hello: 'world'}});  ",
+        "}});"
+      ],
+      "description": "Connect to a Factory Engine stream."
+    },
+    "useListener": {
+      "prefix": ["useListener"],
+      "body": [
+        "//import { useListener } from 'fetoolkit';",
+        "useListener(device, '${1:<listener name (device YAML)>}', (x) => {",
+        "\tconsole.log(x);",
+        "});"
+      ],
+      "description": "Register a Factory Engine listener in your component."
+    },
+    "Device Socket Open": {
+      "prefix": ["useDeviceSocketHandler", "device socket"],
+      "body": [
+        "//import { useDeviceSocketHandler } from 'fetoolkit';",
+        "useDeviceSocketHandler(device, '${1:open}', (event) => {",
+        "\tconsole.log(event);",
+        "\ttry {",
+        "\t\tdevice?.triggerEvent('event_name');",
+        "\t} catch(err) {",
+        "\t\tconsole.error(err);",
+        "\t}",
+        "});"
+      ],
+      "description": "Handle device socket events."
+    },
+    "Trigger Device Event": {
+      "prefix": ["trigger", "event"],
+      "body": [
+        "device?.triggerEvent('${1:event_name}');"
+      ],
+      "description": "Trigger a device event from the frontend."
+    },
+    "Device Component": {
+      "prefix": ["device component", "component"],
+      "body": [
+        "const ${1:Component} = ({device}) => {",
+        "\treturn <p>{device?.name}</p>;",
+        "};"
+      ],
+      "description": "A component that will be associated with a device."
+    }
+}

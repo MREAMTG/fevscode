@@ -4,17 +4,112 @@
       "body": [
         "from fetoolkit import Service, Integer, ANYONE, Success",
         "",
-        "class AddNumbers(Service):",
+        "class ${1:AddNumbers}(Service):",
         "",
-        "   FE_ALLOW = ANYONE()",
+        "\tFE_ALLOW = ANYONE()",
         "",
-        "   class Input:",
-        "       a = Integer()",
-        "       b = Integer()",
+        "\tclass Input:",
+        "\t\ta = Integer()",
+        "\t\tb = Integer()",
         "",
-        "   def run(requester, data):",
-        "       return Success({\"result\": data.a + data.b})"
+        "\tdef run(requester, data):",
+        "\t\treturn Success({\"result\": data.a + data.b})"
       ],
       "description": "A server-side web service."
+    },
+    "Type": {
+      "prefix": ["type"],
+      "body": [
+        "from fetoolkit import Type, Endpoint, TypeOperation",
+        "from fetoolkit import Integer, Text, Timestamp",
+        "",
+        "class ${1:Person}(Type):",
+        "",
+        "\tFE_USE = [",
+        "\t\tEndpoint(TypeOperation.List),",
+        "\t\tEndpoint(TypeOperation.Retrieve),",
+        "\t\tEndpoint(TypeOperation.Create),",
+        "\t\tEndpoint(TypeOperation.Delete),",
+        "\t\tEndpoint(TypeOperation.Update),",
+        "\t]",
+        "",
+        "\tname = Text()",
+        "\tage = Integer()",
+        "\ttime_of_birth = Timestamp()"
+      ],
+      "description": "A server side data model used to interact with the database."
+    },
+    "Repeating Job": {
+      "prefix": ["job", "repeating job", "scheduled job"],
+      "body": [
+        "from fetoolkit import Job, Interval",
+        "",
+        "class ${1:PrintEveryMinute}(Job):",
+        "",
+        "\tFE_SCHEDULE = Interval(minutes=1)",
+        "",
+        "\tdef run():",
+        "\t\tprint(\"Hello world!\")"
+      ],
+      "description": "A server-side job that runs on a repeated interval."
+    },
+    "Startup Job": {
+      "prefix": ["job", "startup job"],
+      "body": [
+        "from fetoolkit import Job, Startup",
+        "",
+        "class ${1:PrintOnce}(Job):",
+        "",
+        "\tFE_SCHEDULE = Startup()",
+        "",
+        "\tdef run():",
+        "\t\tprint(\"Hello world on start!\")"
+      ],
+      "description": "A server-side job that runs once on app startup."
+    },
+    "Permission": {
+      "prefix": ["permission"],
+      "body": [
+        "from fetoolkit import Permission",
+        "",
+        "class ${1:AccessSomething}(Permission):",
+        "\tFE_DESC = \"${2:<Permission description in UI>}\"",
+        "\tFE_GROUP = \"${3:<Permission group name in UI>}\""
+      ],
+      "description": "A permission for limiting access control."
+    },
+    "App Setting (basic)": {
+      "prefix": ["app setting", "setting"],
+      "body": [
+        "from fetoolkit import Setting, ${2:Integer}",
+        "",
+        "class ${1:NumericalSetting}(Setting):",
+        "\tFE_TITLE = \"${3:Numerical Setting}\"",
+        "\tTYPE = ${2:Integer}()"
+      ],
+      "description": "A server-side app-wide setting (basic fields only)."
+    },
+    "App Setting (advanced)": {
+      "prefix": ["app setting", "setting"],
+      "body": [
+        "from fetoolkit import Setting, ${2:Integer}#, ANYONE",
+        "",
+        "class ${1:NumericalSetting}(Setting):",
+        "\tFE_TITLE = \"${3:Numerical Setting}\"",
+        "\tTYPE = ${2:Integer}()",
+        "",
+        "\t# FE_ALLOW_READ = ANYONE() - set read permissions",
+        "\t# FE_ALLOW_WRITE = ANYONE() - set edit permissions",
+        "",
+        "\t# *OR* set ONLY this to change read and edit permissions",
+        "\t# FE_ALLOW = ANYONE()",
+        "",
+        "\tclass Meta:",
+        "\t\tinput_type = \"slider\"",
+        "",
+        "\tdef validate(value) -> bool:",
+        "\t\treturn True"
+      ],
+      "description": "A server-side app-wide setting (all fields)."
     }
 }

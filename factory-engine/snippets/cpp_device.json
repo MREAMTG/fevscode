@@ -1,0 +1,54 @@
+{
+    "Subsystem Header": {
+      "prefix": ["subsystem"],
+      "body": [
+        "#include <fe/Subsystem.hpp>",
+        "#include <fe/Events.hpp>",
+        "",
+        "class ${1:MySubsystem}: public fe::Subsystem {",
+        "\tfe::Event<> e;",
+        "\tfe::Listener<> ls;",
+        "public:",
+        "\tMySubsystem();",
+        "}"
+      ],
+      "description": "Headers for a subsystem"
+    },
+    "Register Event": {
+      "prefix": ["event registration"],
+      "body": [
+        "globalEvents.emplace(\"${1:<global event name>}\", ${2:event});"
+      ],
+      "description": "Registering an event as global"
+    },
+    "Register Listener": {
+      "prefix": ["listener registration"],
+      "body": [
+        "globalListeners.emplace(\"${1:<global listener name>}\", ${2:listener});"
+      ],
+      "description": "Registering a listener as global"
+    },
+    "Initialize Listener": {
+      "prefix": ["listener init"],
+      "body": [
+        "${1:listener} = [${2:&}](${3:}) {",
+        "\t//Do something on listen",
+        "};"
+      ],
+      "description": "Initialize a listener"
+    },
+    "Integration Header": {
+      "prefix": ["integration"],
+      "body": [
+        "#include <fe/Integration.hpp>",
+        "",
+        "class ${1:MyIntegration}: public fe::Integration {",
+        "\tfe::Event<> e;",
+        "\tfe::Listener<> ls;",
+        "public:",
+        "\tMyIntegration();",
+        "}"
+      ],
+      "description": "Headers for an integration"
+    }
+}

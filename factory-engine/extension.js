@@ -24,6 +24,7 @@ const appMeta = (folder) => {
 		const file = fs.readFileSync(filePath, 'utf8');
 		return yaml.load(file);
 	} catch (e) {
+        console.error("Expected error while opening app Meta file:");
 		console.error(e);
 		return null;
 	}
@@ -33,20 +34,46 @@ const isApp = (folder) => {
 	return appMeta(folder) !== null;
 }
 
-const setup_status_bar = (context) => {
+const setup_status_bar = (context, apps) => {
+
+    if(apps.length == 0) return;
+
+    const selectedApp = apps[0];
+
+    const appLabel = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left, 100);
+    appLabel.text = "$(info) FE App: " + selectedApp.slug;
+    appLabel.tooltip = "View Factory Engine app project details";
+    appLabel.command = 'factory-engine.AppInfo';
+    appLabel.show();
+
+    let disposable = vscode.commands.registerCommand('factory-engine.AppInfo', () => {
+		if (!feTerminal)
+            feTerminal = vscode.window.createTerminal('FE Terminal');
+        feTerminal.show();
+		feTerminal.sendText('fe info');
+    });
+	context.subscriptions.push(appLabel, disposable);
+
 	const buildButton = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left, 100);
     buildButton.text = "$(wrench)  fe build (full)";
     buildButton.tooltip = "Build your Factory Engine App Project";
     buildButton.command = 'factory-engine.BuildApp';
     buildButton.show();
 	
-    let disposable = vscode.commands.registerCommand('factory-engine.BuildApp', () => {
+    disposable = vscode.commands.registerCommand('factory-engine.BuildApp', () => {
 		if (!feTerminal)
-            feTerminal = vscode.window.createTerminal('FE App Build');
+            feTerminal = vscode.window.createTerminal('FE Terminal');
         feTerminal.show();
 		feTerminal.sendText('fe build');
     });
 	context.subscriptions.push(buildButton, disposable);
+
+    vscode.window.onDidCloseTerminal((closedTerminal) => {
+        if (closedTerminal === feTerminal) {
+            console.log("Factory Engine build terminal was closed");
+            feTerminal = null;
+        }
+    });
 
 	const buildDeviceButton = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left, 100);
     buildDeviceButton.text = "$(device-desktop) fe build (device)";
@@ -56,7 +83,7 @@ const setup_status_bar = (context) => {
 
     disposable = vscode.commands.registerCommand('factory-engine.BuildAppDevice', () => {
         if (!feTerminal)
-            feTerminal = vscode.window.createTerminal('FE App Build');
+            feTerminal = vscode.window.createTerminal('FE Terminal');
         feTerminal.show();
 		feTerminal.sendText('fe build --no-server');
     });
@@ -70,7 +97,7 @@ const setup_status_bar = (context) => {
 
     disposable = vscode.commands.registerCommand('factory-engine.BuildAppServer', () => {
         if (!feTerminal)
-            feTerminal = vscode.window.createTerminal('FE App Build');
+            feTerminal = vscode.window.createTerminal('FE Terminal');
         feTerminal.show();
 		feTerminal.sendText('fe build --no-device');
     });
@@ -96,12 +123,12 @@ const setup_status_bar = (context) => {
             const choice = selection[0].label;
 			if(choice === "Clean build files") {
 				if (!feTerminal)
-					feTerminal = vscode.window.createTerminal('FE App Build');
+					feTerminal = vscode.window.createTerminal('FE Terminal');
 				feTerminal.show();
 				feTerminal.sendText('fe build --clean');
 			} else if(choice === "Build app docs") {
 				if (!feTerminal)
-					feTerminal = vscode.window.createTerminal('FE App Build');
+					feTerminal = vscode.window.createTerminal('FE Terminal');
 				feTerminal.show();
 				feTerminal.sendText('fe build --docs --no-server');
 			}
@@ -136,17 +163,19 @@ function activate(context) {
 		return;
 	}
 
+    const apps = [];
+
 	const workspaceFolders = vscode.workspace.workspaceFolders;
     if (workspaceFolders) {
         workspaceFolders.forEach(folder => {
             if(isApp(folder)) {
 				const meta = appMeta(folder);
-				vscode.window.showInformationMessage(`Discovered Factory Engine app: ${meta.slug}`);
+                apps.push(meta);
 			}
 		});
 	}
 
-	setup_status_bar(context);
+	setup_status_bar(context, apps);
 }
 
 function deactivate() {}

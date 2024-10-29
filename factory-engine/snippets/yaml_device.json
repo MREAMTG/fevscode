@@ -1,0 +1,97 @@
+{
+    "Subsystems (short)": {
+      "prefix": ["subsystems"],
+      "body": [
+        "subsystems:",
+        "\t${1:<instance name>}: ${2:<app name>}.${3:<class name>}"
+      ],
+      "description": "Subsystems section of device YAML (short)."
+    },
+    "Subsystems (long)": {
+      "prefix": ["subsystems"],
+      "body": [
+        "subsystems:",
+        "\t${1:<instance name>}:",
+        "\t\tclass: ${2:<app name>}.${3:<class name>}",
+        "\t\tparameters:",
+        "\t\t\t- someParam:",
+        "\t\t\t\t\tint: 5",
+        "\t\tconnections:",
+        "\t\t\tlistener1: SomeEmitter.event1"
+      ],
+      "description": "Subsystems section of device YAML (long)."
+    },
+    "Integration": {
+      "prefix": ["integrations"],
+      "body": [
+        "integrations:",
+        "\t${1:<integration name>}:",
+        "\t\tclass: ${2:<app name>}.${3:<class name>}",
+        "\t\tparameters:",
+        "\t\t\t- someParam:",
+        "\t\t\t\t\tint: 5",
+        "\t\tconnections:",
+        "\t\t\tlistener1: SomeEmitter.event1"
+      ],
+      "description": "Integrations section of device YAML (long)."
+    },
+    "Default Action": {
+      "prefix": ["default action", "action"],
+      "body": [
+        "defaultAction:",
+        "\tclass: ${2:<app name>}.${3:<class name>}",
+        "\tparameters:",
+        "\t\t- someParam:",
+        "\t\t\t\tint: 5",
+        "\tsubsystems:",
+        "\t\t- sub1:",
+        "\t\t\t\t\"fe::write_ptr<SubsystemClass>\": someSubsystemInstance"
+      ],
+      "description": "Default action section of device YAML."
+    },
+    "Expose": {
+      "prefix": ["expose"],
+      "body": [
+        "expose:",
+        "\tevents:",
+        "\t\t- ${1:emitter.event_name}",
+        "\tlisteners:",
+        "\t\t- ${2:receiver.listener_name}"
+      ],
+      "description": "Expose section of device YAML."
+    },
+    "Displays": {
+      "prefix": ["displays"],
+      "body": [
+        "displays:",
+        "\t${1:<display title>}:",
+        "\t\tdisplay: ${2:<app slug>}.${3:<display name>}",
+        "\t\trequired: True",
+        "\t\tconnections:",
+        "\t\t\tlistener1: SomeEmitter.event1"
+      ],
+      "description": "Displays section of device YAML."
+    },
+    "Tabs": {
+      "prefix": ["tabs"],
+      "body": [
+        "tabs:",
+        "\t${1:<tab title>}:",
+        "\t\ttab: ${2:<app slug>}.${3:<tab name>}",
+        "\t\tconnections:",
+        "\t\t\tlistener1: SomeEmitter.event1"
+      ],
+      "description": "Tabs section of device YAML."
+    },
+    "Widgets": {
+      "prefix": ["widgets"],
+      "body": [
+        "widgets:",
+        "\t${1:<widget title>}:",
+        "\t\twidget: ${2:<app slug>}.${3:<widget name>}",
+        "\t\tconnections:",
+        "\t\t\tlistener1: SomeEmitter.event1"
+      ],
+      "description": "Widgets section of device YAML."
+    }
+}

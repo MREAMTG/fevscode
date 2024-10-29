@@ -19,6 +19,18 @@
       {
         "language": "python",
         "path": "./snippets/python_server.json"
+      },
+      {
+        "language": "javascriptreact",
+        "path": "./snippets/js_frontend.json"
+      },
+      {
+        "language": "yaml",
+        "path": "./snippets/yaml_device.json"
+      },
+      {
+        "language": "cpp",
+        "path": "./snippets/cpp_device.json"
       }
     ],
     "commands": [
