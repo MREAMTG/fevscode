@@ -57,6 +57,7 @@
     "ms-python.python"
   ],
   "dependencies": {
-    "js-yaml": "^4.1.0"
+    "js-yaml": "^4.1.0",
+    "@vscode/python-extension": "latest"
   }
 }

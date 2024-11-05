@@ -1,20 +1,38 @@
-// The module 'vscode' contains the VS Code extensibility API
-// Import the module and reference it with the alias vscode in your code below
 const vscode = require('vscode');
 const path = require('path');
 const yaml = require('js-yaml');
 const fs = require('fs');
 const { execSync } = require('child_process');
+const { PythonExtension } = require('@vscode/python-extension');
 
 let feTerminal;
 
+function open_build_terminal() {
+    let exists = true;
+    if (!feTerminal) {
+        feTerminal = vscode.window.createTerminal('FE Build Terminal');
+        exists = false;
+    }
+    feTerminal.show();
+    return new Promise(resolve => setTimeout(resolve, exists ? 0 : 1000));
+}
+
 function checkCommandExists(command) {
 	try {
-        // 'command -v' returns the command's path if it exists
         execSync(`command -v ${command}`, { stdio: 'ignore' });
-        return true;  // Command exists
+        return true;
     } catch (error) {
-        return false;  // Command does not exist
+        return false;
+    }
+}
+
+function getCorePath(appPath) {
+    try {
+        const output = execSync("fe info --core-path", { encoding: 'utf-8', cwd: appPath });
+        return output.trim();
+    } catch (error) {
+        console.error(error);
+        return null;
     }
 }
 
@@ -34,6 +52,73 @@ const isApp = (folder) => {
 	return appMeta(folder) !== null;
 }
 
+function setup_pythonpath(appdirs) {
+    if(appdirs.length == 0) return;
+
+    const toolkit_path = path.join(getCorePath(appdirs[0]), "toolkit", "backend", "src");
+
+    const pythonConfig = vscode.workspace.getConfiguration('python');
+    const currentExtraPaths = pythonConfig.get('analysis.extraPaths') || [];
+    if(!currentExtraPaths.includes(toolkit_path)) {
+        const updatedPaths = [...currentExtraPaths, toolkit_path];
+        pythonConfig.update('analysis.extraPaths', updatedPaths, vscode.ConfigurationTarget.Workspace).then(() => {
+            console.log('Successfully updated extraPaths - added', toolkit_path);
+        }, (err) => {
+            console.error('Error updating extraPaths:', err);
+        });
+    }
+}
+
+async function setup_venv(appdirs) {
+    if(appdirs.length == 0) return;
+
+    const venv_path = path.join(appdirs[0], ".fe", "venv", "bin", "python");
+    if(fs.existsSync(venv_path)) {
+        const pythonApi = await PythonExtension.api();
+        const environments = pythonApi.environments;
+        await environments.updateActiveEnvironmentPath(venv_path);
+        console.log("Activated venv")
+    } else {
+        console.log("No venv to activate")
+    }
+}
+
+async function clear_venv() {
+    const pythonApi = await PythonExtension.api();
+    const environments = pythonApi.environments;
+    const environments2 = environments.known;
+    const pythonConfig = vscode.workspace.getConfiguration('python');
+    const interpreterPath = pythonConfig.get('defaultInterpreterPath');
+    await environments.updateActiveEnvironmentPath(interpreterPath);
+    console.log("Cleared venv");
+}
+
+function setup_venv_watcher(context, appdirs) {
+    const pattern = '**/*';
+    const interp_path = path.join(appdirs[0], ".fe", "venv", "bin", "python");
+    const env_path = path.join(appdirs[0], ".fe", "venv");
+
+    const watcher = vscode.workspace.createFileSystemWatcher(pattern);
+    watcher.onDidCreate((uri) => {
+        // console.log(`File created: ${uri.fsPath}`);
+        if(uri.fsPath === interp_path) {
+            console.log("FE venv discovered. Activating...");
+            setup_venv(appdirs);
+        }
+    });
+
+    watcher.onDidDelete((uri) => {
+        // console.log(`File delete: ${uri.fsPath}`);
+        if(uri.fsPath === env_path || uri.fsPath === interp_path) {
+            console.log("FE venv deleted. De-activating...");
+            
+            clear_venv();
+        }
+    });
+  
+    context.subscriptions.push(watcher);
+}
+
 const setup_status_bar = (context, apps) => {
 
     if(apps.length == 0) return;
@@ -47,10 +132,9 @@ const setup_status_bar = (context, apps) => {
     appLabel.show();
 
     let disposable = vscode.commands.registerCommand('factory-engine.AppInfo', () => {
-		if (!feTerminal)
-            feTerminal = vscode.window.createTerminal('FE Terminal');
-        feTerminal.show();
-		feTerminal.sendText('fe info');
+		open_build_terminal().then(() => {
+            feTerminal.sendText('fe info');
+        });
     });
 	context.subscriptions.push(appLabel, disposable);
 
@@ -61,10 +145,9 @@ const setup_status_bar = (context, apps) => {
     buildButton.show();
 	
     disposable = vscode.commands.registerCommand('factory-engine.BuildApp', () => {
-		if (!feTerminal)
-            feTerminal = vscode.window.createTerminal('FE Terminal');
-        feTerminal.show();
-		feTerminal.sendText('fe build');
+        open_build_terminal().then(() => {
+            feTerminal.sendText('fe build');
+        });
     });
 	context.subscriptions.push(buildButton, disposable);
 
@@ -82,10 +165,9 @@ const setup_status_bar = (context, apps) => {
     buildDeviceButton.show();
 
     disposable = vscode.commands.registerCommand('factory-engine.BuildAppDevice', () => {
-        if (!feTerminal)
-            feTerminal = vscode.window.createTerminal('FE Terminal');
-        feTerminal.show();
-		feTerminal.sendText('fe build --no-server');
+        open_build_terminal().then(() => {
+            feTerminal.sendText('fe build --no-server');
+        });
     });
 	context.subscriptions.push(buildDeviceButton, disposable);
 
@@ -96,10 +178,9 @@ const setup_status_bar = (context, apps) => {
     buildServerButton.show();
 
     disposable = vscode.commands.registerCommand('factory-engine.BuildAppServer', () => {
-        if (!feTerminal)
-            feTerminal = vscode.window.createTerminal('FE Terminal');
-        feTerminal.show();
-		feTerminal.sendText('fe build --no-device');
+        open_build_terminal().then(() => {
+            feTerminal.sendText('fe build --no-device');
+        });
     });
 
     context.subscriptions.push(buildServerButton, disposable);
@@ -122,15 +203,13 @@ const setup_status_bar = (context, apps) => {
         quickPick.onDidChangeSelection(selection => {
             const choice = selection[0].label;
 			if(choice === "Clean build files") {
-				if (!feTerminal)
-					feTerminal = vscode.window.createTerminal('FE Terminal');
-				feTerminal.show();
-				feTerminal.sendText('fe build --clean');
+                open_build_terminal().then(() => {
+                    feTerminal.sendText('fe build --clean');
+                });
 			} else if(choice === "Build app docs") {
-				if (!feTerminal)
-					feTerminal = vscode.window.createTerminal('FE Terminal');
-				feTerminal.show();
-				feTerminal.sendText('fe build --docs --no-server');
+                open_build_terminal().then(() => {
+                    feTerminal.sendText('fe build --docs --no-server');
+                });
 			}
             quickPick.hide();
         });
@@ -164,6 +243,7 @@ function activate(context) {
 	}
 
     const apps = [];
+    const appdirs = [];
 
 	const workspaceFolders = vscode.workspace.workspaceFolders;
     if (workspaceFolders) {
@@ -171,11 +251,15 @@ function activate(context) {
             if(isApp(folder)) {
 				const meta = appMeta(folder);
                 apps.push(meta);
+                appdirs.push(folder.uri.path);
 			}
 		});
 	}
 
 	setup_status_bar(context, apps);
+    setup_venv(appdirs);
+    setup_pythonpath(appdirs);
+    setup_venv_watcher(context, appdirs);
 }
 
 function deactivate() {}
