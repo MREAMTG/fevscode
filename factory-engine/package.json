@@ -2,7 +2,7 @@
   "name": "factory-engine",
   "displayName": "Factory Engine",
   "description": "IDE support for Factory Engine",
-  "version": "0.0.1",
+  "version": "0.1.1",
   "engines": {
     "vscode": "^1.94.0"
   },

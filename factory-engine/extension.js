@@ -1,6 +1,6 @@
 const vscode = require('vscode');
 const { checkCommandExists, getCorePath, appMeta, isApp } = require('./utils.js');
-const { setup_venv, clear_venv, setup_venv_watcher, setup_pythonpath } = require('./py.js');
+const { setup_venv, clear_venv, setup_watchers, setup_pythonpath } = require('./py.js');
 const { execSync } = require('child_process');
 const { setup_status_bar } = require('./status.js');
 
@@ -53,9 +53,8 @@ function run_setup(context) {
 
     delete_terminals();
 	setup_status_bar(context, apps, appdirs, open_build_terminal);
-    // setup_venv(appdirs);
     setup_pythonpath(appdirs);
-    setup_venv_watcher(context, appdirs);
+    setup_watchers(context, appdirs);
 
     return [apps, appdirs];
 }

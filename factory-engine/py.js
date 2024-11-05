@@ -32,12 +32,13 @@ async function clear_venv() {
     console.log("Cleared venv");
 }
 
-function setup_venv_watcher(context, appdirs) {
+function setup_watchers(context, appdirs) {
     if(appdirs.length === 0) return;
 
     const pattern = '**/*';
     const interp_path = path.join(appdirs[0], ".fe", "venv", "bin", "python");
     const env_path = path.join(appdirs[0], ".fe", "venv");
+    const fe_path = path.join(appdirs[0], ".fe");
 
     const watcher = vscode.workspace.createFileSystemWatcher(pattern);
     watcher.onDidCreate((uri) => {
@@ -55,6 +56,8 @@ function setup_venv_watcher(context, appdirs) {
         if(uri.fsPath === env_path || uri.fsPath === interp_path) {
             console.log("FE venv deleted. De-activating...");
             clear_venv();
+        } else if(uri.fsPath === fe_path) {
+            vscode.commands.executeCommand('workbench.action.reloadWindow');
         }
     });
   
