@@ -35,8 +35,8 @@
     ],
     "commands": [
       {
-        "command": "factory-engine.helloWorld",
-        "title": "Hello World"
+        "command": "factory-engine.InitApp",
+        "title": "Factory Engine: Create app project"
       }
     ]
   },
