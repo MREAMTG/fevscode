@@ -8,11 +8,15 @@ async function setup_venv(appdirs) {
     if(appdirs.length == 0) return;
 
     const venv_path = path.join(appdirs[0], ".fe", "venv", "bin", "python");
+    const venv_root_path = path.join(appdirs[0], ".fe", "venv");
     if(fs.existsSync(venv_path)) {
         const pythonApi = await PythonExtension.api();
+        await pythonApi.ready;
         const environments = pythonApi.environments;
-        await environments.updateActiveEnvironmentPath(venv_path);
-        console.log("Activated venv")
+        const env = await environments.resolveEnvironment(venv_root_path);
+        console.log(env);
+        await environments.updateActiveEnvironmentPath(venv_root_path);
+        console.log("Activated venv", venv_root_path);
     } else {
         console.log("No venv to activate")
     }
@@ -39,8 +43,10 @@ function setup_venv_watcher(context, appdirs) {
     watcher.onDidCreate((uri) => {
         // console.log(`File created: ${uri.fsPath}`);
         if(uri.fsPath === interp_path) {
-            console.log("FE venv discovered. Activating...");
-            setup_venv(appdirs);
+            setTimeout(() => {
+                console.log("FE venv discovered. Activating...");
+                setup_venv(appdirs);
+            }, 2000);
         }
     });
 
@@ -48,12 +54,23 @@ function setup_venv_watcher(context, appdirs) {
         // console.log(`File delete: ${uri.fsPath}`);
         if(uri.fsPath === env_path || uri.fsPath === interp_path) {
             console.log("FE venv deleted. De-activating...");
-            
             clear_venv();
         }
     });
   
     context.subscriptions.push(watcher);
+
+    vscode.window.onDidChangeActiveTextEditor((editor) => {
+        if (editor) {
+            const document = editor.document;
+            
+            if (document.languageId === 'python') {
+                console.log("Switched to py file!");    
+                setup_venv(appdirs);
+                setup_pythonpath(appdirs);
+            }
+        }
+    });
 }
 
 function setup_pythonpath(appdirs) {

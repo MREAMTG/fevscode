@@ -2,28 +2,6 @@ const vscode = require('vscode');
 const { execSync } = require('child_process');
 
 const setup_status_bar = (context, apps, appdirs, open_build_terminal) => {
-
-    let disposable = vscode.commands.registerCommand('factory-engine.InitApp', async () => {
-        if(apps.length > 0) {
-            await vscode.window.showErrorMessage("You are already in a Factory Engine app project folder!");
-            return;
-        }
-
-        const result = await vscode.window.showInputBox({ placeHolder: 'Enter app project slug' });
-            if(result) {
-                try {
-                    execSync(`fe init ${result}`, { encoding: 'utf-8', cwd: vscode.workspace.workspaceFolders[0].uri.path });
-                    console.log("Inited!");
-                    vscode.commands.executeCommand('workbench.action.reloadWindow');
-                } catch (error) {
-                    console.error(error);
-                    await vscode.window.showErrorMessage("Failed to initialize Factory Engine app");
-                }
-            }
-		
-    });
-	context.subscriptions.push(disposable);
-
     if(apps.length == 0) return;
 
     const selectedApp = apps[0];
@@ -34,31 +12,10 @@ const setup_status_bar = (context, apps, appdirs, open_build_terminal) => {
     appLabel.command = 'factory-engine.AppInfo';
     appLabel.show();
 
-    disposable = vscode.commands.registerCommand('factory-engine.AppInfo', () => {
+    let disposable = vscode.commands.registerCommand('factory-engine.AppInfo', () => {
 		open_build_terminal().then((t) => {
             t.sendText('fe info');
         });
-    });
-	context.subscriptions.push(appLabel, disposable);
-
-    disposable = vscode.commands.registerCommand('factory-engine.InitApp', async () => {
-        if(apps.length > 0) {
-            await vscode.window.showErrorMessage("You are already in a Factory Engine app project folder!");
-            return;
-        }
-
-        const result = await vscode.window.showInputBox({ placeHolder: 'Enter app project slug' });
-            if(result) {
-                try {
-                    execSync(`fe init ${result}`, { encoding: 'utf-8', cwd: vscode.workspace.workspaceFolders[0].uri.path });
-                    console.log("Inited!");
-                    vscode.commands.executeCommand('workbench.action.reloadWindow');
-                } catch (error) {
-                    console.error(error);
-                    await vscode.window.showErrorMessage("Failed to initialize Factory Engine app");
-                }
-            }
-		
     });
 	context.subscriptions.push(appLabel, disposable);
 
