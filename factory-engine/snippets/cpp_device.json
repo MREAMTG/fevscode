@@ -1,5 +1,5 @@
 {
-    "Subsystem Header": {
+    "Subsystem Header (with events)": {
       "prefix": ["subsystem"],
       "body": [
         "#include <fe/Subsystem.hpp>",
@@ -13,6 +13,48 @@
         "}"
       ],
       "description": "Headers for a subsystem"
+    },
+    "Setting Header": {
+      "prefix": ["setting"],
+      "body": [
+        "fe::Setting<${2:int}> ${1:mySetting};"
+      ],
+      "description": "Header for a device setting (to be placed in a subsystem header)"
+    },
+    "Setting Header (with meta)": {
+      "prefix": ["setting"],
+      "body": [
+        "fe::Setting<${2:int}, ${3:MetaClass}> ${1:mySetting};"
+      ],
+      "description": "Header for a device setting with setting meta (to be placed in a subsystem header)"
+    },
+    "Setting Group Header": {
+      "prefix": ["setting group"],
+      "body": [
+        "fe::SettingGroup ${1:myGroup};"
+      ],
+      "description": "Header for a device setting group (to be placed in a subsystem header)"
+    },
+    "Register Setting (subsystem)": {
+      "prefix": ["setting registration"],
+      "body": [
+        "addSetting(${1:mySetting});"
+      ],
+      "description": "Code that adds a setting to a subsystem"
+    },
+    "Register Setting (setting group)": {
+      "prefix": ["setting registration"],
+      "body": [
+        "${1:myGroup}.addSetting(\"${2:<Name_to_register>}\", ${3:mySetting});"
+      ],
+      "description": "Code that adds a setting to a setting group"
+    },
+    "Add Setting Meta": {
+      "prefix": ["setting meta"],
+      "body": [
+        "${1:mySetting}.emplaceMeta(${2:\"<meta_constructor_args>\"});"
+      ],
+      "description": "Code that adds a meta to a particular setting"
     },
     "Register Event": {
       "prefix": ["event registration"],
@@ -50,5 +92,150 @@
         "}"
       ],
       "description": "Headers for an integration"
+    },
+    "YAML-Convertible Class Header (decode)": {
+      "prefix": ["yaml", "yaml setting class"],
+      "body": [
+        "#include <fe/Setting.hpp>",
+        "",
+        "class ${1:ClassName} {",
+        "public:",
+        "\tint x;",
+        "\t${1:ClassName}();",
+        "};",
+        "",
+        "namespace YAML {",
+        "\ttemplate<>",
+        "\tstruct convert<${1:ClassName}> {",
+        "\t\tstatic bool decode(const YAML::Node& node, ${1:ClassName}& c);",
+        "\t\tstatic YAML::Node encode(const ${1:ClassName}& c);",
+        "\t};",
+        "}"
+      ],
+      "description": "Headers for yaml-convertible class that can be used in settings"
+    },
+    "YAML-Convertible Class Implementation (decode)": {
+      "prefix": ["yaml", "yaml setting class"],
+      "body": [
+        "${1:ClassName}::${1:ClassName}() {}",
+        "",
+        "bool YAML::convert<${1:ClassName}>::decode(const YAML::Node& node, ${1:ClassName}& c) {",
+        "\tc = ${1:ClassName}{};",
+        "\tc.x = node[\"x\"].as<int>();",
+        "\treturn true;",
+        "}",
+        "",
+        "YAML::Node YAML::convert<${1:ClassName}>::encode(const ${1:ClassName}& c) {",
+        "\tYAML::Node node;",
+        "\tnode[\"x\"] = c.x;",
+        "\treturn node;",
+        "}"
+      ],
+      "description": "Implementation for yaml-convertible class that can be used in settings"
+    },
+    "YAML-Convertible Class Header (emplace)": {
+      "prefix": ["yaml", "yaml setting class"],
+      "body": [
+        "#include <fe/Setting.hpp>",
+        "",
+        "class ${1:ClassName} {",
+        "public:",
+        "\tint x;",
+        "\t${1:ClassName}();",
+        "};",
+        "",
+        "namespace YAML {",
+        "\ttemplate<>",
+        "\tstruct convert<${1:ClassName}> {",
+        "\t\tstatic std::tuple<int> emplace(const YAML::Node& node);",
+        "\t\tstatic YAML::Node encode(const ${1:ClassName}& c);",
+        "\t};",
+        "}"
+      ],
+      "description": "Headers for yaml-convertible class that can be used in settings (using emplace instead of decode)"
+    },
+    "YAML-Convertible Class Implementation (emplace)": {
+      "prefix": ["yaml", "yaml setting class"],
+      "body": [
+        "${1:ClassName}::${1:ClassName}(int x): x{x} {}",
+        "",
+        "std::tuple<int> YAML::convert<${1:ClassName}>::emplace(const YAML::Node& node) {",
+        "\treturn {node[\"x\"].as<int>()};",
+        "}",
+        "",
+        "YAML::Node YAML::convert<${1:ClassName}>::encode(const ${1:ClassName}& c) {",
+        "\tYAML::Node node;",
+        "\tnode[\"x\"] = c.x;",
+        "\treturn node;",
+        "}"
+      ],
+      "description": "Implementation for yaml-convertible class that can be used in settings (using emplace instead of decode)"
+    },
+    "Setting Meta Headers (basic)": {
+      "prefix": ["setting meta"],
+      "body": [
+        "#include <fe/Setting.hpp>",
+        "",
+        "class ${1:MinMax}: public fe::SettingMeta<${2:float}> {",
+        "\tfloat min;",
+        "\tfloat max;",
+        "public:",
+        "\t${1:MinMax}(float min, float max);",
+        "\tvirtual void validate(const ${2:float} &f) const override;",
+        "};"
+      ],
+      "description": "Headers for a setting meta class (basic)"
+    },
+    "Setting Meta Implementation (basic)": {
+      "prefix": ["setting meta"],
+      "body": [
+        "${1:MinMax}::${1:MinMax}(float min, float max): min{min}, max{max} {}",
+        "",
+        "void ${1:MinMax}::validate(const ${2:float} &f) const {",
+        "\tif(f < min || f > max)",
+        "\t\tthrow fe::ValidationException(\"Not in the correct min-max range!\");",
+        "}"
+      ],
+      "description": "Implementation for a setting meta class (basic)"
+    },
+    "Setting Meta Headers (with encode/decode)": {
+      "prefix": ["setting meta"],
+      "body": [
+        "#include <fe/Setting.hpp>",
+        "",
+        "class ${1:MinMax}: public fe::SettingMeta<${2:float}> {",
+        "\tfloat min;",
+        "\tfloat max;",
+        "public:",
+        "\t${1:MinMax}(float min, float max);",
+        "\tvirtual void validate(const ${2:float} &f) const override;",
+        "protected:",
+        "\tvirtual void decodeYAML(const YAML::Node& node) const override;",
+        "\tvirtual void encodeYAML(YAML::Node& node) override;",
+        "};"
+      ],
+      "description": "Headers for a setting meta class (with encode/decode)"
+    },
+    "Setting Meta Implementation (with encode/decode)": {
+      "prefix": ["setting meta"],
+      "body": [
+        "${1:MinMax}::${1:MinMax}(float min, float max): min{min}, max{max} {}",
+        "",
+        "void ${1:MinMax}::validate(const ${2:float} &f) const {",
+        "\tif(f < min || f > max)",
+        "\t\tthrow fe::ValidationException(\"Not in the correct min-max range!\");",
+        "}",
+        "",
+        "void ${1:MinMax}::decodeYAML(const YAML::Node& node) {",
+        "\tmin = node[\"min\"].as<float>();",
+        "\tmax = node[\"max\"].as<float>();",
+        "}",
+        "",
+        "void ${1:MinMax}::encodeYAML(YAML::Node& node) const {",
+        "\tnode[\"min\"] = min;",
+        "\tnode[\"max\"] = max;",
+        "}"
+      ],
+      "description": "Implementation for a setting meta class (with encode/decode)"
     }
 }

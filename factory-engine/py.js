@@ -93,4 +93,4 @@ function setup_pythonpath(appdirs) {
     }
 }
 
-module.exports = {setup_venv, clear_venv, setup_venv_watcher, setup_pythonpath};
+module.exports = {setup_venv, clear_venv, setup_watchers, setup_pythonpath};
