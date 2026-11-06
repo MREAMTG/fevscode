@@ -58,6 +58,6 @@
   ],
   "dependencies": {
     "@vscode/python-extension": "1.0.6",
-    "js-yaml": "4.3.2"
+    "js-yaml": "5.5.0"
   }
 }
