@@ -1,0 +1,23 @@
+version: 2
+updates:
+  - package-ecosystem: "npm"
+    directory: "/factory-engine"
+    # Dependencies are pinned to exact versions; bump the pin rather than widening to a range.
+    versioning-strategy: "increase"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 10
+    groups:
+      dev-dependencies:
+        dependency-type: "development"
+        update-types:
+          - "minor"
+          - "patch"
+    ignore:
+      # @types/vscode must not exceed engines.vscode in package.json, or vsce packaging fails.
+      # Bump both together by hand when raising the minimum VS Code version.
+      - dependency-name: "@types/vscode"
+        update-types: ["version-update:semver-major", "version-update:semver-minor"]
+      # @types/node is pinned to the Node major bundled with VS Code's Electron runtime.
+      - dependency-name: "@types/node"
+        update-types: ["version-update:semver-major"]
